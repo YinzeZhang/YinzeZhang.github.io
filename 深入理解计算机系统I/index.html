@@ -6,22 +6,22 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://example.com">
-  <title>architecture of a Database System(I) | Dylan的博客</title>
+  <title>深入理解计算机系统I | Dylan的博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="阅读数据库的基础论文《Architecture of a Database System(中文版)》，学习关系数据库（RDBMS）的系统架构设计，文章主要对论文第一章、第二章的内容进行总结。">
+  <meta name="description" content="这本书从本科三年级老师就推荐我们阅读来看，但是一直没有开始看，在面试和实际应用的过程中，发现有一些问题需要从更深的层次上来理解，因此现在开始做这项工作。本书内容涉及面广而且难度大，不求一次能完全看懂，第一次看要建立起基本的概念，根据一些指导完成课后的习题和lab我的学习目的就达到了。加油！">
 <meta property="og:type" content="article">
-<meta property="og:title" content="architecture of a Database System(I)">
-<meta property="og:url" content="http://example.com/architecture-of-a-Database-System-I/index.html">
+<meta property="og:title" content="深入理解计算机系统I">
+<meta property="og:url" content="http://example.com/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9FI/index.html">
 <meta property="og:site_name" content="Dylan的博客">
-<meta property="og:description" content="阅读数据库的基础论文《Architecture of a Database System(中文版)》，学习关系数据库（RDBMS）的系统架构设计，文章主要对论文第一章、第二章的内容进行总结。">
+<meta property="og:description" content="这本书从本科三年级老师就推荐我们阅读来看，但是一直没有开始看，在面试和实际应用的过程中，发现有一些问题需要从更深的层次上来理解，因此现在开始做这项工作。本书内容涉及面广而且难度大，不求一次能完全看懂，第一次看要建立起基本的概念，根据一些指导完成课后的习题和lab我的学习目的就达到了。加油！">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://example.com/architecture-of-a-Database-System-I/image-20220425190948725.png">
-<meta property="article:published_time" content="2022-04-25T10:39:28.000Z">
-<meta property="article:modified_time" content="2022-04-25T13:28:32.167Z">
+<meta property="og:image" content="http://example.com/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9FI/image-20220427112854496.png">
+<meta property="article:published_time" content="2022-04-25T14:35:41.000Z">
+<meta property="article:modified_time" content="2022-04-27T04:34:58.488Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="后端，开发者,极客,编程,代码,开源,IT网站,Developer,Programmer">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/architecture-of-a-Database-System-I/image-20220425190948725.png">
+<meta name="twitter:image" content="http://example.com/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9FI/image-20220427112854496.png">
   
     <link rel="alternative" href="/atom.xml" title="Dylan的博客" type="application/atom+xml">
   
@@ -147,81 +147,62 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-architecture-of-a-Database-System-I" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="post-深入理解计算机系统I" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 class="article-title" itemprop="name">
-      architecture of a Database System(I)
+      深入理解计算机系统I
     </h1>
   
 
         
-        <a href="/architecture-of-a-Database-System-I/" class="archive-article-date">
-  	<time datetime="2022-04-25T10:39:28.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-04-25</time>
+        <a href="/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9FI/" class="archive-article-date">
+  	<time datetime="2022-04-25T14:35:41.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-04-25</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>阅读数据库的基础论文《Architecture of a Database System(中文版)》，学习关系数据库（RDBMS）的系统架构设计，文章主要对论文第一章、第二章的内容进行总结。</p>
+        <p>这本书从本科三年级老师就推荐我们阅读来看，但是一直没有开始看，在面试和实际应用的过程中，发现有一些问题需要从更深的层次上来理解，因此现在开始做这项工作。本书内容涉及面广而且难度大，不求一次能完全看懂，第一次看要建立起基本的概念，根据一些指导完成课后的习题和lab我的学习目的就达到了。加油！</p>
 <span id="more"></span>
 
-<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>关系数据库主要由五个部分组成，分别是：</p>
-<ul>
-<li><strong>客户端通信管理器（Client Communications Manager）</strong>：用于建立与客户端的连接并记录连接地址，对客户端的sql语句做出回应，并在适当的时候返回数据及控制信息。</li>
-<li><strong>进程管理器（Process Manager）</strong>：在收到客户端的请求之后，DBMS将为之分配一个计算线程&#x2F;进程。这些进程&#x2F;线程由DBMS进程管理器来管理，由进程管理器来决定系统合适调度该查询。</li>
-<li><strong>关系查询处理器（Relational Query Processor）</strong>：这些模块检查用户是否有权进行该查询，然后将用户的 sql 查询语句编译为中间查询计划。在编译之后，查询计划被交给查询执行器，查询执行器执行查询计划的相关操作，比如连接、投影、选择、聚集、排序等等。</li>
-<li><strong>存储管理器（Transactional Storage Manager）</strong>：管理所有的数据接口（读）和操作调用（建立、更新、删除）</li>
-<li><strong>共享组件和工具</strong>：目录（索引？）和存储管理器在传输数据时被作为工具来调用</li>
+<h2 id="课程综述"><a href="#课程综述" class="headerlink" title="课程综述"></a>课程综述</h2><h3 id="学习建议："><a href="#学习建议：" class="headerlink" title="学习建议："></a>学习建议：</h3><p>学习建议每章读三遍，然后完成练习。</p>
+<h3 id="学习的两个目标："><a href="#学习的两个目标：" class="headerlink" title="学习的两个目标："></a>学习的两个目标：</h3><ul>
+<li>了解工具，技巧和方法，程序是如何运行的，机器是如何支持程序运行的。</li>
+<li>计算机网络，操作系统，嵌入式系统相关知识</li>
 </ul>
-<p><img src="/architecture-of-a-Database-System-I/image-20220425190948725.png" alt="image-20220425190948725"></p>
-<h2 id="进程模型"><a href="#进程模型" class="headerlink" title="进程模型"></a>进程模型</h2><p>第二章解决的是DBMS作为多用户服务器，并发用户的请求如何映射到操作进程和线程的问题，主要讲了三个进程模型。</p>
-<h3 id="简单DBMS进程模型分类方法"><a href="#简单DBMS进程模型分类方法" class="headerlink" title="简单DBMS进程模型分类方法"></a>简单DBMS进程模型分类方法</h3><ul>
-<li><strong>每个DBMS Worker拥有一个进程</strong>：DBMS Worker之间被映射到系统进程，因为进程空间的隔离，实现相对容易。但是DBMS连接所需要的内存中的数据结构（比如锁和缓存）就需要共享内存来实现，增加了复杂度。</li>
-<li><strong>每个DBMS Worker拥有一个线程</strong>：一个多线程进程负责所有的DBMS Worker的工作。调度线程监听新的DBMS客户端的连接，每个连接都分配一个新的线程。并发量高，多线程编程难度大，共享内存的使用</li>
-<li><strong>进程池</strong>：一个中央进程控制所有DBMS客户端的连接，每个请求被分配一个进程池中的进程，处理完后返还给进程池</li>
-</ul>
-<h3 id="DBMS中的缓冲区："><a href="#DBMS中的缓冲区：" class="headerlink" title="DBMS中的缓冲区："></a>DBMS中的缓冲区：</h3><p>两种主要的缓冲区是磁盘I&#x2F;O缓冲区和客户端通信缓冲区</p>
-<ul>
-<li><strong>磁盘IO缓冲区-数据库I&#x2F;O请求缓冲区：</strong>DBMS Worker对数据页的读写都是通过磁盘I&#x2F;O缓冲区来进行的，每个DBMS Worker拥有一个线程的情况下，磁盘I&#x2F;O缓冲区用堆来实现。其他两种情况下，用共享内存来实现。</li>
-<li><strong>磁盘IO缓冲区-日志I&#x2F;O请求：The Log Tail</strong>，日志会暂时被存在在内存队列（Log Tail）中，然后周期性地按FIFO顺序刷新到磁盘</li>
-<li><strong>客户端通信缓冲区：</strong>客户端通过重复发送SQL FETCH请求，不断地获取结果元组。DBMS尽可能地在FETCH流到来之前做一些数据预提取工作，以确保在客户端请求之前将结果存入队列。</li>
-<li><strong>Lock Table：</strong>Lock Table由所有的 DBMS 工作者共享，由锁管理器实现数据库锁机制</li>
-</ul>
-<h3 id="标准实践："><a href="#标准实践：" class="headerlink" title="标准实践："></a>标准实践：</h3><p>对IBM DB2、MySQL、Oracle、PostgreSQL和Microsoft Server所执行的进程模型做一个总结。</p>
-<p><strong>每个DBMS Worker拥有一个进程：</strong>PostgreSQL 在所有的操作系统上都是每个 DBMS Worker拥有一个进程。DB2和Oracle在不支持线程的系统上，默认每个DBMS Worker一个进程，支持线程的系统上，默认每个DBMS Worker一个进程。Oracle支持进程池。</p>
-<p><strong>每个DBMS Worker拥有一个线程：</strong>该模型有两个种类</p>
-<ul>
-<li>每个DBMS Worker拥有一个系统线程：MySQL使用该模型</li>
-<li>每个DBMS Worker拥有一个DBMS线程：DBMS Worker的调度是通过系统进程或线程去调度轻量级线程来实现的<ul>
-<li>通过系统进程来调度DBMS线程：轻量级线程的调度是由一个或多个系统进程来完成的。</li>
-<li>通过系统线程来调度DBMS线程：微软 SQL Sever 以可选择的方式（Fibers）支持这种模型(默认的模型为 DBMS Worker多路复用线程池)。</li>
-</ul>
+<h3 id="课程讨论的主题："><a href="#课程讨论的主题：" class="headerlink" title="课程讨论的主题："></a>课程讨论的主题：</h3><ul>
+<li><p>数字、数字的表示及其属性——int不是整数，floats不对应小数</p>
+<p>int 会发生数据溢出的情况，int始终满足交换率、结合律</p>
+<p>float类型不一定满足结合律和交换率，比如当两个相差特别大的数进行运算时，可能会使得较小的数字消失，所以不满足结合律。</p>
+<p><img src="/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9FI/image-20220427112854496.png" alt="image-20220427112854496"></p>
+</li>
+<li><p>指令集，机器级编程的意义。C语言代码如何变成机器码，如何在机器上执行，关注Intel处理器的汇编语言，它最新版本时x86-64，指令集是64位版本的。</p>
+</li>
+<li><p>关于内存的事项</p>
+<p>边界检查，内存必须被合理地分配和管理</p>
+<p>内存引用bug是非常有害的</p>
+<p>缓存和虚拟内存的合理利用可以极大地提升程序性能</p>
+</li>
+<li><p>性能不仅仅是渐进复杂度，需要算法，数据表示，过程和循环等不同层次的优化</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"># 代码一</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">copyij</span><span class="params">(<span class="type">int</span> src[<span class="number">2048</span>][<span class="number">2048</span>],</span></span></span><br><span class="line"><span class="params"><span class="function">            <span class="type">int</span> dst[<span class="number">2048</span>][<span class="number">2048</span>])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="type">int</span> i,j;</span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">2048</span>; i++)</span><br><span class="line">    <span class="keyword">for</span> (j = <span class="number">0</span>; j &lt; <span class="number">2048</span>; j++)</span><br><span class="line">      dst[i][j] = src[i][j];</span><br><span class="line">&#125;</span><br><span class="line"># 代码二</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">copyji</span><span class="params">(<span class="type">int</span> src[<span class="number">2048</span>][<span class="number">2048</span>],</span></span></span><br><span class="line"><span class="params"><span class="function">            <span class="type">int</span> dst[<span class="number">2048</span>][<span class="number">2048</span>])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="type">int</span> i,j;</span><br><span class="line">  <span class="keyword">for</span> (j = <span class="number">0</span>; j &lt; <span class="number">2048</span>; j++)</span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">2048</span>; i++)</span><br><span class="line">      dst[i][j] = src[i][j];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>计算机不仅仅是计算程序，还涉及了数据的输入，输出，跨网络的通信</p>
 </li>
 </ul>
-<p><strong>进程池&#x2F;线程池</strong>：</p>
-<ul>
-<li><p>DBMS Worker共用进程池：</p>
-<p>这个模型相对于每个DBMS Worker拥有一个进程的模型而言，有更高的内存使用效率。Oracle数据库的可选项。</p>
-</li>
-<li><p>DBMS Worker共用线程池：</p>
-<p>微软SQL Server默认使用该模型。</p>
-</li>
-</ul>
-<p>内部查询并行化，并行多线程执行一条查询语句或者该语句的一部分，并行化内部查询使得多个DBMS Worker暂时分配给一条SQL请求，也就是说一个客户端连接将拥有多个DBMS Worker来处理其请求。</p>
-<h3 id="准入控制："><a href="#准入控制：" class="headerlink" title="准入控制："></a><strong>准入控制：</strong></h3><p>随着多用户系统负载不断升高，吞吐量将达到上限。挂起经常是由于内存问题导致的，DBMS无法保证在缓冲池中存放数据库页数据，引起频繁的页切换。特殊的操作排序和哈希连接往往会造成大量的内存消耗。锁竞争。准入控制器将保证事务延长将随着到达率的增加而适当增加，但吞吐量一直保持在峰值。</p>
-<p>DBMS的准入控制可以在两个层面上来实现：</p>
-<p>使客户端的连接数处于一个临界值之下</p>
-<p>在DBMS内核关系查询处理器上实现，准入控制器在查询语句转化和优化完成后评估：</p>
-<ul>
-<li>确定查询所需要的磁盘设备及磁盘的I&#x2F;O请求数。</li>
-<li>根据查询中的操作以及要求的元组数目判断CPU负载。</li>
-<li>评估查询数据结构的内存使用情况（重要准入控制标准）。</li>
-</ul>
+<h3 id="lab"><a href="#lab" class="headerlink" title="lab"></a>lab</h3><p>七个实验分为5个部分</p>
+<p><strong>程序和数据：</strong></p>
+<p>DataLab关于数据的位级表示；</p>
+<p>BombLab阅读和理解汇编语言；</p>
+<p>AttackLab代码注入攻击</p>
+<p><strong>层次存储：</strong>CacheLab，内存层次模型</p>
+<p><strong>异常控制流</strong>：中断</p>
+<p><strong>虚拟内存：</strong>MollocLab从新实现C标准库中的Malloc和Free函数</p>
+<p><strong>网络和并发：</strong>I&#x2F;O，网络编程，使用套接字接口的程序</p>
 
       
 
@@ -280,7 +261,7 @@
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//pan.baidu.com/share/qrcode?url=http://example.com/architecture-of-a-Database-System-I/" alt="微信分享二维码">
+      <img src="//pan.baidu.com/share/qrcode?url=http://example.com/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9FI/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -294,18 +275,9 @@
   
 <nav id="article-nav">
   
-    <a href="/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9FI/" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          深入理解计算机系统I
-        
-      </div>
-    </a>
   
-  
-    <a href="/%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">第一篇博客</div>
+    <a href="/architecture-of-a-Database-System-I/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">architecture of a Database System(I)</div>
       <i class="icon-circle-right"></i>
     </a>
   
