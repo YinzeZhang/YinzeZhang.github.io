@@ -6,13 +6,17 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://example.com">
-  <title>Archives: 2022 | Dylan的博客</title>
+  <title>Java rpc调用tensorflow-serving的细节问题 | Dylan的博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Dylan的博客">
-<meta property="og:url" content="http://example.com/archives/2022/index.html">
+  <meta name="description" content="实践通过rpc调用tensorflow-serving的接口，记录同步调用总体流程和实践过程中遇到的客户端生成问题，tensor_shape的理解问题。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java rpc调用tensorflow-serving的细节问题">
+<meta property="og:url" content="http://example.com/Java-rpc%E8%B0%83%E7%94%A8tensorflow-serving%E7%9A%84%E7%BB%86%E8%8A%82%E9%97%AE%E9%A2%98/index.html">
 <meta property="og:site_name" content="Dylan的博客">
+<meta property="og:description" content="实践通过rpc调用tensorflow-serving的接口，记录同步调用总体流程和实践过程中遇到的客户端生成问题，tensor_shape的理解问题。">
 <meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-10-07T14:54:42.000Z">
+<meta property="article:modified_time" content="2022-10-07T15:05:53.864Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="后端，开发者,极客,编程,代码,开源,IT网站,Developer,Programmer">
 <meta name="twitter:card" content="summary">
@@ -141,211 +145,172 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-Java-rpc调用tensorflow-serving的细节问题" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2022" class="archive-year">2022</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/Tensorflow%E7%9A%84%E6%A6%82%E5%BF%B5%E6%A2%B3%E7%90%86/" class="archive-article-date">
-  	<time datetime="2022-10-07T14:57:13.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-07</time>
-</a>
-        </div>
-    	 
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/Tensorflow%E7%9A%84%E6%A6%82%E5%BF%B5%E6%A2%B3%E7%90%86/">Tensorflow的概念梳理</a>
+    <h1 class="article-title" itemprop="name">
+      Java rpc调用tensorflow-serving的细节问题
     </h1>
   
 
-        <div class="article-info info-on-right">
-          
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/Java-rpc%E8%B0%83%E7%94%A8tensorflow-serving%E7%9A%84%E7%BB%86%E8%8A%82%E9%97%AE%E9%A2%98/" class="archive-article-date">
+        
+        <a href="/Java-rpc%E8%B0%83%E7%94%A8tensorflow-serving%E7%9A%84%E7%BB%86%E8%8A%82%E9%97%AE%E9%A2%98/" class="archive-article-date">
   	<time datetime="2022-10-07T14:54:42.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-07</time>
 </a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/Java-rpc%E8%B0%83%E7%94%A8tensorflow-serving%E7%9A%84%E7%BB%86%E8%8A%82%E9%97%AE%E9%A2%98/">Java rpc调用tensorflow-serving的细节问题</a>
-    </h1>
-  
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>实践通过rpc调用tensorflow-serving的接口，记录同步调用总体流程和实践过程中遇到的客户端生成问题，tensor_shape的理解问题。</p>
+<span id="more"></span>
 
-        <div class="article-info info-on-right">
-          
-          
+<h2 id="同步调用流程："><a href="#同步调用流程：" class="headerlink" title="同步调用流程："></a>同步调用流程：</h2><p>1、NettyChannelBuilder 定义channel。</p>
+<p>2、定义客户端桩，PredictionServiceGrpc.newBlockingStub(channel)。</p>
+<p>3、传参：关键参数有：modelName，modelVersion和inputs下的tensor，这些参数可以通过meta接口获取。</p>
+<p>4、发起调用，可以指定超时时间，response.getOutputs()处理返回结果。</p>
+<h2 id="调用过程中的关键问题："><a href="#调用过程中的关键问题：" class="headerlink" title="调用过程中的关键问题："></a>调用过程中的关键问题：</h2><h3 id="Java客户端生成"><a href="#Java客户端生成" class="headerlink" title="Java客户端生成"></a>Java客户端生成</h3><ul>
+<li>客户端需要包括两个方面，rpc 的能力，所以需要引入protoc-gen-grpc-java maven插件，生成predict对应的rpc客户端。</li>
+<li>需要包括tensorflow-serving，定义的一系列数据结构比如TensorProto等，所以要引入com.google.protobuf:protoc插件和tensorflow-serving 定义的.proto文件来生成.java的数据结构。</li>
+<li>还需要引入一些运行protobuf的运行时依赖，protobuf-java和grpc-protobuf。</li>
+</ul>
+<h3 id="tensor定义"><a href="#tensor定义" class="headerlink" title="tensor定义"></a>tensor定义</h3><p>构建tensor有两个需要关注的地方，tensor_shape和tensor_type，</p>
+<pre><code>  &quot;dim&quot;: [
+   &#123;
+    &quot;size&quot;: &quot;-1&quot;,
+    &quot;name&quot;: &quot;&quot;
+   &#125;,
+   &#123;
+    &quot;size&quot;: &quot;1&quot;,
+    &quot;name&quot;: &quot;&quot;
+   &#125;
+]
+</code></pre>
+<p>说明shape是[None，1]，在设置tensor的shape时，可以通过None告诉tensorflow，在这个维度上可以接受任意长度的数据，可以是1个，2个，…，N个。None一般用于最高维，就是说向量可以表示为[[1]]，[[1], [2]]，或者[[1], [2], [3], ….]，表示预测1个值，2个值，任意值的情况。对应的Java构建代码如下。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">TensorShapeProto.<span class="type">Dim</span> <span class="variable">keysDim1</span> <span class="operator">=</span> TensorShapeProto.Dim.newBuilder().setSize(<span class="number">3</span>).build();</span><br><span class="line">        </span><br><span class="line">TensorShapeProto.<span class="type">Dim</span> <span class="variable">keysDim2</span> <span class="operator">=</span> TensorShapeProto.Dim.newBuilder().setSize(<span class="number">1</span>).build();</span><br><span class="line">        </span><br><span class="line"><span class="type">TensorShapeProto</span> <span class="variable">keysShape</span> <span class="operator">=</span> TensorShapeProto.newBuilder().addDim(keysDim1).addDim(keysDim2).build();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="type">TensorProto</span> <span class="variable">tensor</span> <span class="operator">=</span> TensorProto.newBuilder().setTensorShape(keysShape)</span><br><span class="line">                .setDtype(DataType.DT_FLOAT)</span><br><span class="line">                .addAllFloatVal(Arrays.asList(<span class="number">1.0f</span>, <span class="number">2.0f</span>, <span class="number">3.0f</span>, <span class="number">4.0f</span>)).build();</span><br></pre></td></tr></table></figure>
 
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/dcrmg/article/details/79017146">tensorflow中张量(tensor)的属性——维数(阶)、形状和数据类型</a></p>
+<p><a target="_blank" rel="noopener" href="https://subaochen.github.io/deeplearning/2019/05/19/none-in-tensorflow/">tensorflow中的None</a></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=http://example.com/Java-rpc%E8%B0%83%E7%94%A8tensorflow-serving%E7%9A%84%E7%BB%86%E8%8A%82%E9%97%AE%E9%A2%98/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/AI%E6%9C%8D%E5%8A%A1%E5%8C%96/" class="archive-article-date">
-  	<time datetime="2022-10-02T11:20:42.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-02</time>
-</a>
+<nav id="article-nav">
+  
+    <a href="/Tensorflow%E7%9A%84%E6%A6%82%E5%BF%B5%E6%A2%B3%E7%90%86/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          Tensorflow的概念梳理
+        
+      </div>
+    </a>
+  
+  
+    <a href="/AI%E6%9C%8D%E5%8A%A1%E5%8C%96/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">AI服务化</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
+        
+        
+    </div>
+</aside>
+
+
+
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/AI%E6%9C%8D%E5%8A%A1%E5%8C%96/">AI服务化</a>
-    </h1>
+  
   
 
-        <div class="article-info info-on-right">
-          
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9FI/" class="archive-article-date">
-  	<time datetime="2022-04-25T14:35:41.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-04-25</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9FI/">深入理解计算机系统I</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/architecture-of-a-Database-System-I/" class="archive-article-date">
-  	<time datetime="2022-04-25T10:39:28.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-04-25</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/architecture-of-a-Database-System-I/">architecture of a Database System(I)</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/" class="archive-article-date">
-  	<time datetime="2022-04-22T16:56:07.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-04-23</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/">第一篇博客</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/hello-world/" class="archive-article-date">
-  	<time datetime="2022-04-22T13:24:26.139Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-04-22</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/hello-world/">Hello World</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
-  
-
-    
 
 
           </div>
@@ -368,8 +333,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,

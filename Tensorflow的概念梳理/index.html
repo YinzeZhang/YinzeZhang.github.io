@@ -6,13 +6,17 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://example.com">
-  <title>Archives: 2022 | Dylan的博客</title>
+  <title>Tensorflow的概念梳理 | Dylan的博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Dylan的博客">
-<meta property="og:url" content="http://example.com/archives/2022/index.html">
+  <meta name="description" content="整理总结tensorflow-serving 模型的保存和加载的三种方式，checkpoint模式，pb模式，save_model模式和由save_model引出的SignatureDef概念。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Tensorflow的概念梳理">
+<meta property="og:url" content="http://example.com/Tensorflow%E7%9A%84%E6%A6%82%E5%BF%B5%E6%A2%B3%E7%90%86/index.html">
 <meta property="og:site_name" content="Dylan的博客">
+<meta property="og:description" content="整理总结tensorflow-serving 模型的保存和加载的三种方式，checkpoint模式，pb模式，save_model模式和由save_model引出的SignatureDef概念。">
 <meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-10-07T14:57:13.000Z">
+<meta property="article:modified_time" content="2022-10-07T15:03:22.843Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="后端，开发者,极客,编程,代码,开源,IT网站,Developer,Programmer">
 <meta name="twitter:card" content="summary">
@@ -141,211 +145,155 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
+            <article id="post-Tensorflow的概念梳理" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
   
+    <h1 class="article-title" itemprop="name">
+      Tensorflow的概念梳理
+    </h1>
   
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2022" class="archive-year">2022</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/Tensorflow%E7%9A%84%E6%A6%82%E5%BF%B5%E6%A2%B3%E7%90%86/" class="archive-article-date">
+
+        
+        <a href="/Tensorflow%E7%9A%84%E6%A6%82%E5%BF%B5%E6%A2%B3%E7%90%86/" class="archive-article-date">
   	<time datetime="2022-10-07T14:57:13.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-07</time>
 </a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/Tensorflow%E7%9A%84%E6%A6%82%E5%BF%B5%E6%A2%B3%E7%90%86/">Tensorflow的概念梳理</a>
-    </h1>
-  
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>整理总结tensorflow-serving 模型的保存和加载的三种方式，checkpoint模式，pb模式，save_model模式和由save_model引出的SignatureDef概念。</p>
+<span id="more"></span>
 
-        <div class="article-info info-on-right">
-          
-          
+<h2 id="模型保存、加载的流程"><a href="#模型保存、加载的流程" class="headerlink" title="模型保存、加载的流程"></a>模型保存、加载的流程</h2><h3 id="checkpoint模式保存"><a href="#checkpoint模式保存" class="headerlink" title="checkpoint模式保存"></a>checkpoint模式保存</h3><p>一般用于训练时保存模型。</p>
+<p>├── checkpoint（保存最新的checkpoint文件及其它checkpoint文件列表）<br>├── test-model-1.data-00000-of-00001<br>├── test-model-1.index<br>└── test-model-1.meta（保存模型结构）</p>
+<h3 id="checkpoint模式加载"><a href="#checkpoint模式加载" class="headerlink" title="checkpoint模式加载"></a>checkpoint模式加载</h3><p>分别加载模型结构和模型数据，加载结构可以通过加载.meta文件中的结构或者重写源模型来实现。不过从.meta文件加载之后要通过get_tensor_by_name来获取变量。</p>
+<h3 id="pb模式保存"><a href="#pb模式保存" class="headerlink" title="pb模式保存"></a>pb模式保存</h3><p>.pb格式保存的模型，其实pb模式本质上就是把变量先冻结成常数，然后保存到图结构中。可以直接加载图结构和“参数”了。</p>
+<h3 id="pb模型加载"><a href="#pb模型加载" class="headerlink" title="pb模型加载"></a>pb模型加载</h3><p>同时加载网络结构和数据结构，通过tensor的name获取为变量，如”input:0”, “output:0”。pb模型里保存的是常量了。</p>
+<h3 id="saved-model模式保存"><a href="#saved-model模式保存" class="headerlink" title="saved_model模式保存"></a>saved_model模式保存</h3><p>Tersonflow-serving 部署模型时要求模型格式必须是saved_model格式，这种可以可以通过打tag的方式保存多张计算图。</p>
+<p>|–saved_model_dir<br>|    |–1<br>|        |–saved_model.pb<br>|        |–variables<br>|            |–variables.data-00000-of-00001<br>|            |–variables.index</p>
+<p>一张计算图在保存之前需要构建一个signature map，用来构造signature的build_signature_def函数有三个参数：inputs、outputs、method_name。其中inputs和outputs分别用来获取输入输出向量的信息，在部署服务后请求带来的数据会feed到inputs中，触发计算图计算，服务吐的结果会以outputs的形式返回。</p>
+<p>Method_name 可以设置为”tensorflow&#x2F;serving&#x2F;predict”,”tensorflow&#x2F;serving&#x2F;classify”,”tensorflow&#x2F;serving&#x2F;regress”中的一个。</p>
+<h3 id="saved-model模式加载"><a href="#saved-model模式加载" class="headerlink" title="saved_model模式加载"></a>saved_model模式加载</h3><p>signature_def_map的方法获取tensor，不用重新搭建网络也不用知道input output tensor在模型中的名字。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">saved_model_dir = <span class="string">&quot;./saved_model/1/&quot;</span></span><br><span class="line"><span class="keyword">with</span> tf.Session() <span class="keyword">as</span> sess:</span><br><span class="line">    meta_graph_def = tf.saved_model.loader.load(sess, tags=[<span class="string">&quot;serve&quot;</span>], export_dir=saved_model_dir)</span><br><span class="line">    signature = meta_graph_def.signature_def</span><br><span class="line">    X = signature[<span class="string">&quot;serving_default&quot;</span>].inputs[<span class="string">&quot;input&quot;</span>].name</span><br><span class="line">    pred = signature[<span class="string">&quot;serving_default&quot;</span>].outputs[<span class="string">&quot;output&quot;</span>].name</span><br><span class="line">    <span class="built_in">print</span>(sess.run(pred, feed_dict=&#123;X:feed_X&#125;))</span><br></pre></td></tr></table></figure>
 
+<h2 id="SignatureDef"><a href="#SignatureDef" class="headerlink" title="SignatureDef"></a>SignatureDef</h2><p>SignatureDef用于定义输出和输入接口协议，他在构建<code>SaveModel</code>时，被封装到二进制文件中。</p>
+<figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">message </span><span class="title class_">SignatureDef</span> &#123;</span><br><span class="line">  <span class="comment">//指定输入参数。</span></span><br><span class="line">  map&lt;<span class="type">string</span>, TensorInfo&gt; inputs = <span class="number">1</span>;</span><br><span class="line">  <span class="comment">//指定输出参数</span></span><br><span class="line">  map&lt;<span class="type">string</span>, TensorInfo&gt; outputs = <span class="number">2</span>;</span><br><span class="line">  <span class="comment">//自定义签名，方便以后进行查找操作，可以定义多个，用于方便获取计算图中节点</span></span><br><span class="line">  <span class="type">string</span> method_name = <span class="number">3</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>主要作用就是标记tensor的名字，从API的角度来说，可以为同一个模型定义不同的输入输出形式。method_name的三种类型，也是对应rpc接口&#x2F;http接口的设计。比如调用predict时通过setSignatureName设置找到predict方法的哪种输入输出形式。</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/128546377">Tensorflow笔记：模型保存、加载和Fine-tune</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/344846077">如何理解TensorFlow计算图？</a></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=http://example.com/Tensorflow%E7%9A%84%E6%A6%82%E5%BF%B5%E6%A2%B3%E7%90%86/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/Java-rpc%E8%B0%83%E7%94%A8tensorflow-serving%E7%9A%84%E7%BB%86%E8%8A%82%E9%97%AE%E9%A2%98/" class="archive-article-date">
-  	<time datetime="2022-10-07T14:54:42.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-07</time>
-</a>
+<nav id="article-nav">
+  
+  
+    <a href="/Java-rpc%E8%B0%83%E7%94%A8tensorflow-serving%E7%9A%84%E7%BB%86%E8%8A%82%E9%97%AE%E9%A2%98/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Java rpc调用tensorflow-serving的细节问题</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
+        
+        
+    </div>
+</aside>
+
+
+
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/Java-rpc%E8%B0%83%E7%94%A8tensorflow-serving%E7%9A%84%E7%BB%86%E8%8A%82%E9%97%AE%E9%A2%98/">Java rpc调用tensorflow-serving的细节问题</a>
-    </h1>
+  
   
 
-        <div class="article-info info-on-right">
-          
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/AI%E6%9C%8D%E5%8A%A1%E5%8C%96/" class="archive-article-date">
-  	<time datetime="2022-10-02T11:20:42.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-02</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/AI%E6%9C%8D%E5%8A%A1%E5%8C%96/">AI服务化</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9FI/" class="archive-article-date">
-  	<time datetime="2022-04-25T14:35:41.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-04-25</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9FI/">深入理解计算机系统I</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/architecture-of-a-Database-System-I/" class="archive-article-date">
-  	<time datetime="2022-04-25T10:39:28.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-04-25</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/architecture-of-a-Database-System-I/">architecture of a Database System(I)</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/" class="archive-article-date">
-  	<time datetime="2022-04-22T16:56:07.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-04-23</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/">第一篇博客</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/hello-world/" class="archive-article-date">
-  	<time datetime="2022-04-22T13:24:26.139Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-04-22</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/hello-world/">Hello World</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
-  
-
-    
 
 
           </div>
@@ -368,8 +316,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,
